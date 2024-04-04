@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+    env_file:
+      - ./.env
+
+  broker:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    env_file:
+      - ./.env
+  
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.3.0
+    container_name: schema-registry
+    depends_on:
+      - broker
+    ports:
+      - 8081:8081
+    env_file:
+      - ./.env
+  
+  connect:
+    image : asia-northeast3-docker.pkg.dev/cheorish/mlops/connect:0.0.1
+    container_name: connect
+    depends_on:
+      - broker
+      - schema-registry
+    env_file:
+      - ./.env
+
+networks:
+  default:
+    name : mlops-network
+    external: true
+
